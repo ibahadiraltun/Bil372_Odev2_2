@@ -1,4 +1,4 @@
-## Bil372_Odev2_2
+## Bil372_Odev2_Grup2
 
 Paper admission system
 
@@ -9,5 +9,6 @@ Paper admission system
 
 
 ## Demo:
+
 
 ## Feedback:
