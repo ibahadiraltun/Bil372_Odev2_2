@@ -1,0 +1,101 @@
+CREATE TABLE country (
+  COUNTRY_CODE char(3) primary key NOT NULL,
+  Country_Name varchar(50) unique NOT NULL
+);
+
+
+CREATE TABLE city (
+  city_id serial  NOT NULL,
+  city_name varchar(100) unique NOT NULL,
+  COUNTRY_CODE char(3) NOT NULL,
+  PRIMARY KEY(city_id, city_name),
+  FOREIGN KEY(COUNTRY_CODE) REFERENCES country(country_code)
+);
+
+
+CREATE TABLE usersInfo (
+
+	AuthenticationID serial PRIMARY KEY,
+	Title VARCHAR ( 50 )  NOT NULL,
+	name VARCHAR ( 50 ) NOT NULL,
+	lname VARCHAR ( 50 )  NOT NULL,
+	affiliation VARCHAR ( 50 )  NOT NULL,
+	primary_email VARCHAR ( 100 )  UNIQUE NOT NULL,
+	secondary_email VARCHAR ( 100 )  UNIQUE NOT NULL,
+	password VARCHAR ( 255 ) NOT NULL,
+	phone VARCHAR ( 50 ) NOT NULL,
+	fax VARCHAR ( 50 ) NOT NULL,
+	URL VARCHAR ( 50 ) NOT NULL,
+	Address VARCHAR ( 100 ) NOT NULL,
+	City VARCHAR ( 100 ) NOT NULL,
+	Country VARCHAR ( 3 ) NOT NULL,
+	Date TIMESTAMP NOT NULL, 
+	status INT NOT NULL,
+	FOREIGN KEY (City) REFERENCES city(city_name),
+	FOREIGN KEY (Country) REFERENCES country(country_code)
+);
+
+CREATE TABLE userslog (
+	AuthenticationID serial PRIMARY KEY,
+	Title VARCHAR ( 50 )  NOT NULL,
+	name VARCHAR ( 50 ) NOT NULL,
+	lname VARCHAR ( 50 )  NOT NULL,
+	affiliation VARCHAR ( 50 )  NOT NULL,
+	primary_email VARCHAR ( 100 )  UNIQUE NOT NULL,
+	secondary_email VARCHAR ( 100 )  UNIQUE NOT NULL,
+	password VARCHAR ( 255 ) NOT NULL,
+	phone VARCHAR ( 50 ) NOT NULL,
+	fax VARCHAR ( 50 ) NOT NULL,
+	URL VARCHAR ( 50 ) NOT NULL,
+	Address VARCHAR ( 100 ) NOT NULL,
+	City VARCHAR ( 100 ) NOT NULL,
+	Country VARCHAR ( 3 ) NOT NULL,
+	Date TIMESTAMP NOT NULL, 
+        status INT NOT NULL,
+	FOREIGN KEY (City) REFERENCES city(city_name),
+	FOREIGN KEY (Country) REFERENCES country(country_code)
+);
+
+CREATE TABLE conference (
+	confid VARCHAR(20) PRIMARY KEY NOT NULL,
+	name VARCHAR ( 100 ) NOT NULL,
+	shortname VARCHAR ( 19 )  NOT NULL,
+	year INT  NOT NULL,
+	start_date date NOT NULL, 
+	end_date date NOT NULL,
+	submission_deadline date NOT NULL,
+	creator_user INT NOT NULL,
+	website VARCHAR(100),
+	Creation_DateTime date NOT NULL, 
+	FOREIGN KEY (creator_user) REFERENCES usersinfo(AuthenticationID)
+);
+
+CREATE TABLE conferencetags (
+  confid varchar(20)  NOT NULL,
+  Tag varchar(200) NOT NULL,
+  PRIMARY KEY(confid, tag),
+  FOREIGN KEY (confid) REFERENCES conference(confid)
+);
+
+CREATE TABLE conferenceroles (
+  confid_role INT  NOT NULL, 
+  AuthenticationID INT primary key not null,
+  FOREIGN KEY (confid_role) REFERENCES usersinfo(AuthenticationID)
+);
+
+INSERT INTO public.country(
+	country_code, country_name)
+	VALUES ('TUR', 'TURKEY'),('USA', 'AMERICA'),('ZWE', 'ZIMBABWE');
+
+INSERT INTO public.city(
+	city_name, country_code)
+	VALUES ('ANKARA', 'TUR'),('ISTANBUL', 'TUR'),('IZMIR', 'TUR'),('NEW YORK', 'USA');
+
+
+
+
+
+
+
+
+
