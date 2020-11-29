@@ -8,6 +8,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
 #engine = create_engine("postgresql+psycopg2://postgres:test@localhost/HW2")
 db=SQLAlchemy(app)
@@ -18,6 +19,21 @@ City = db.Table('city', db.metadata, autoload=True, autoload_with=db.engine)
 User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine)
 #city = Base.classes.city 
    
+
+user_requests = []
+for i in range(0, 20):
+   user_requests.append({
+      'name': 'user' + str(i),
+      'id': i
+   })
+
+conf_requests = []
+for i in range(0, 20):
+   conf_requests.append({
+      'name': 'conf' + str(i),
+      'id': i
+   })
+
 @app.route('/')
 def login():
    return render_template('login.html')
@@ -26,6 +42,7 @@ def login():
 #checkings will be added, it is just a structure.
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
+
    if request.method == 'POST':
       title=request.form['title']
       name=request.form['name']
@@ -49,6 +66,17 @@ def signup():
       return redirect(url_for('login'))
    else:
       return render_template('signup.html', cities = session.query(City).all() )   
+
+       
+
+@app.route('/main')
+def main():
+   return render_template('main.html', users = user_requests, confs = conf_requests)
+
+@app.route('/conference')
+def conference():
+   return render_template('conference.html')  
+
 
 if __name__ == '__main__':
    app.run(debug = True)
