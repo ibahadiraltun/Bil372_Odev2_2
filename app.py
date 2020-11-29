@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ibahadiraltun:@localhost/bil372-hw2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:@localhost/odev2'
 db=SQLAlchemy(app)
 
 user_requests = []
@@ -32,6 +32,9 @@ def signup():
 def main():
     return render_template('main.html', users = user_requests, confs = conf_requests)
 
+@app.route('/conference')
+def conference():
+    return render_template('conference.html')  
 
 if __name__ == '__main__':
    app.run(debug = True)
