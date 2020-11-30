@@ -91,6 +91,9 @@ INSERT INTO public.city(
 	city_name, country_code)
 	VALUES ('ANKARA', 'TUR'),('ISTANBUL', 'TUR'),('IZMIR', 'TUR'),('NEW YORK', 'USA');
 
+INSERT INTO public.usersinfo (authenticationid, title, name, lname, affiliation, primary_email, secondary_email, password, phone, fax, url, address, city, country, date, status) VALUES (4, 'Prof', 'Ahmet', 'Akan', '--', 'ahmetakan@gmail.com', 'ahmetakan2@gmail.com', '12345', '888 888 8888', '22 222 222 2222', 'ahmetakan.com.tr', 'TOBB', 'NEW YORK', 'USA', '2020-11-29 20:20:00.848129', 0);
+
+
 
 
 
