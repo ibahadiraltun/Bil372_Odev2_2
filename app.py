@@ -2,6 +2,7 @@ from flask import Flask, render_template,request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 #from sqlalchemy.ext.automap import automap_base
 #from sqlalchemy import create_engine
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
@@ -20,13 +21,6 @@ User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine
 #city = Base.classes.city 
    
 
-user_requests = []
-for i in range(0, 20):
-   user_requests.append({
-      'name': 'user' + str(i),
-      'id': i
-   })
-
 conf_requests = []
 for i in range(0, 20):
    conf_requests.append({
@@ -34,15 +28,28 @@ for i in range(0, 20):
       'id': i
    })
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def login():
-   return render_template('login.html')
+   if request.method == 'POST':
+      email= request.form['email']
+      password= request.form['password']
+      query= select([User.c.password]).where(User.c.primary_email == email)
+      db_password= db.engine.connect().execute(query).fetchone()[0]
+      if(password == db_password ):
+         if(email == 'admin'):
+            return redirect(url_for('main'))
+         else:
+            return render_template('user.html')
+      else:
+         error = 'Wrong password or email'
+         return render_template('login.html', error=error)
+   else:   
+      return render_template('login.html')
 
 
-#checkings will be added, it is just a structure.
+
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
-
    if request.method == 'POST':
       title=request.form['title']
       name=request.form['name']
@@ -60,10 +67,17 @@ def signup():
       country=tmp[1].strip()
       password=request.form['password']
       confirmpassword=request.form['confirmpassword']
-      dt = datetime.utcnow()
-      new_user= User.insert().values(title=title, name=name, lname=lastname,affiliation=affiliation,primary_email=p_email,secondary_email=s_email,password=password,phone=phone,fax=fax,address=address,url=url,city=city,country=country,date=dt,status=0)
-      db.engine.connect().execute(new_user)
-      return redirect(url_for('login'))
+      error=''
+      if(password != confirmpassword):
+         error = 'Passwords do not match!!' 
+      
+      if(error == ''):
+         dt = datetime.utcnow()
+         new_user= User.insert().values(title=title, name=name, lname=lastname,affiliation=affiliation,primary_email=p_email,secondary_email=s_email,password=password,phone=phone,fax=fax,address=address,url=url,city=city,country=country,date=dt,status=0)
+         db.engine.connect().execute(new_user)
+         return redirect(url_for('login'))
+      else:
+         return render_template('signup.html', cities=session.query(City).all(), error = error)   
    else:
       return render_template('signup.html', cities = session.query(City).all() )   
 
@@ -71,7 +85,8 @@ def signup():
 
 @app.route('/main')
 def main():
-   return render_template('main.html', users = user_requests, confs = conf_requests)
+   query=select([User]).where(User.c.status == 0)   
+   return render_template('main.html', users = db.engine.connect().execute(query) , confs = conf_requests)
 
 @app.route('/conference')
 def conference():
