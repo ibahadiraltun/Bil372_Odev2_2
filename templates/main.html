@@ -61,7 +61,7 @@
 {% block body %}
 
 <div class="error text-center"></div>
-
+<!-- table needs to be inserted -->
 <div class="main-page">
     <tbody>
         <h1>User Requests</h1>
@@ -73,7 +73,7 @@
             </a>
             {% for usr in users %}
                 <a>
-                    <span class="name">{{ usr["name"]}}</span>
+                    <span class="name">{{ usr.name}}-{{usr.lname}}-{{usr.primary_email}}</span>
                     <button class="tick"> &#9989; </button>
                     <button class="cross"> &#10060; </button>
                 </a>
