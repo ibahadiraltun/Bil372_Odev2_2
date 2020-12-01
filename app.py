@@ -113,7 +113,6 @@ def handle_status_change(form, model):
 @app.route('/main', methods=['POST', 'GET'])
 def main():
    if request.method == 'POST':
-      print(request.form)
       if (request.form['form_type'] == 'user'):
          return handle_status_change(form = request.form, model = 'User')
       return handle_status_change(form = request.form, model = 'Conference')
