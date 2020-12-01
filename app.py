@@ -100,14 +100,15 @@ def update_conf_status(id, status):
 
 def handle_status_change(form, model):
    id, new_status = None, None
-   if 'submit_tick' in form:
-      new_status = 1
-      id = form['submit_tick']
-   else:
-      new_status = -1
-      id = form['submit_cross']
+   is_tick = ('submit_tick' in form)
+   new_status = is_tick + (1 - is_tick) * -1
+
+   if is_tick:id = form['submit_tick']
+   else: id = form['submit_cross']
+
    if model == 'User': update_user_status(id, new_status)
    else: update_conf_status(id, new_status)
+   
    return render_template('main.html', users = get_users(), confs = get_confs())
 
 @app.route('/main', methods=['POST', 'GET'])
