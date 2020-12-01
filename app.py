@@ -1,7 +1,5 @@
 from flask import Flask, render_template,request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-#from sqlalchemy.ext.automap import automap_base
-#from sqlalchemy import create_engine
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 import psycopg2
@@ -9,17 +7,17 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/odev2'
-#engine = create_engine("postgresql+psycopg2://postgres:test@localhost/HW2")
+#connection to database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
 db=SQLAlchemy(app)
-#Base = automap_base()
-#Base.prepare(engine, reflect=True)
-session =Session(db.engine)  
+session =Session(db.engine)
+conn=db.engine.connect()
+
+#tables
 City = db.Table('city', db.metadata, autoload=True, autoload_with=db.engine)
 User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine)
 Conf = db.Table('conference', db.metadata, autoload=True, autoload_with=db.engine)
-#city = Base.classes.city 
+
 
 @app.route('/', methods=['POST', 'GET'])
 def login():
@@ -27,12 +25,17 @@ def login():
       email= request.form['email']
       password= request.form['password']
       query= select([User.c.password]).where(User.c.primary_email == email)
-      db_password= db.engine.connect().execute(query).fetchone()[0]
-      if(password == db_password ):
+      db_password= conn.execute(query).fetchone()
+      if(db_password != None and  password == db_password[0] ):
          if(email == 'admin'):
             return redirect(url_for('main'))
          else:
-            return render_template('user.html')
+            query= select([User.c.status]).where(User.c.primary_email == email)
+            status= conn.execute(query).fetchone()[0]
+            if status == 1: return redirect(url_for('user'))
+            else:
+                error='Need ADMIN approval'
+                return render_template('login.html', error=error)
       else:
          error = 'Wrong password or email'
          return render_template('login.html', error=error)
@@ -67,7 +70,7 @@ def signup():
       if(error == ''):
          dt = datetime.utcnow()
          new_user= User.insert().values(title=title, name=name, lname=lastname,affiliation=affiliation,primary_email=p_email,secondary_email=s_email,password=password,phone=phone,fax=fax,address=address,url=url,city=city,country=country,date=dt,status=0)
-         db.engine.connect().execute(new_user)
+         conn.execute(new_user)
          return redirect(url_for('login'))
       else:
          return render_template('signup.html', cities=session.query(City).all(), error = error)   
@@ -76,19 +79,19 @@ def signup():
 
 def get_users():
    query=select([User]).where(User.c.status == 0)
-   return db.engine.connect().execute(query)
+   return conn.execute(query)
 
 def update_user_status(id, status):
    query = update(User).where(User.c.authenticationid == id).values(status = status)
-   db.engine.connect().execute(query)
+   conn.execute(query)
 
 def get_confs():
    query=select([Conf]).where(Conf.c.status == 0)
-   return db.engine.connect().execute(query)
+   return conn.execute(query)
 
 def update_conf_status(id, status):
    query = update(Conf).where(Conf.c.confid == id).values(status = status)
-   db.engine.connect().execute(query)
+   conn.execute(query)
 
 def handle_status_change(form, model):
    is_tick = ('submit_tick' in form)
@@ -128,7 +131,7 @@ def conference():
       Creation_DateTime=request.form['Creation_DateTime']
       dt = datetime.utcnow()
       new_conference= Conf.insert().values(confid=confid,name=name, shortname=shortname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,creator_user=creator_user,website=website,Creation_DateTime=Creation_DateTime)
-      db.engine.connect().execute(new_conference)
+      conn.execute(new_conference)
       return redirect(url_for('main'))
    else:
       return render_template('conference.html', usersinfos = session.query(User).all() )  
