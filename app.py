@@ -20,14 +20,6 @@ City = db.Table('city', db.metadata, autoload=True, autoload_with=db.engine)
 User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine)
 Conf = db.Table('conference', db.metadata, autoload=True, autoload_with=db.engine)
 #city = Base.classes.city 
-   
-
-conf_requests = []
-for i in range(0, 20):
-   conf_requests.append({
-      'name': 'conf' + str(i),
-      'confid': i
-   })
 
 @app.route('/', methods=['POST', 'GET'])
 def login():
@@ -99,11 +91,11 @@ def update_conf_status(id, status):
    db.engine.connect().execute(query)
 
 def handle_status_change(form, model):
-   id, new_status = None, None
    is_tick = ('submit_tick' in form)
    new_status = is_tick + (1 - is_tick) * -1
+   id = -1
 
-   if is_tick:id = form['submit_tick']
+   if is_tick: id = form['submit_tick']
    else: id = form['submit_cross']
 
    if model == 'User': update_user_status(id, new_status)
