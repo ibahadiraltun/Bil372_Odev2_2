@@ -10,7 +10,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ibahadiraltun:test@localhost/bil372-hw2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/odev2'
 #engine = create_engine("postgresql+psycopg2://postgres:test@localhost/HW2")
 db=SQLAlchemy(app)
 #Base = automap_base()
@@ -112,9 +112,28 @@ def main():
    else:
       return render_template('main.html', users = get_users(), confs = get_confs())
 
-@app.route('/conference')
-def conference():
-   return render_template('conference.html')  
+@app.route('/conference', methods=['POST', 'GET'])
+def conference(): 
+   
+   if request.method == 'POST':
+      confid=request.form['confid']
+      name=request.form['name']
+      shortname=request.form['shortname']
+      year=request.form['year']
+      start_date=request.form['start_date']
+      end_date=request.form['end_date']
+      submission_deadline=request.form['submission_deadline']
+      creator_user=request.form['creator_user']
+      website=request.form['website']
+      Creation_DateTime=request.form['Creation_DateTime']
+      dt = datetime.utcnow()
+      new_conference= Conf.insert().values(confid=confid,name=name, shortname=shortname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,creator_user=creator_user,website=website,Creation_DateTime=Creation_DateTime)
+      db.engine.connect().execute(new_conference)
+      return redirect(url_for('main'))
+   else:
+      return render_template('conference.html', usersinfos = session.query(User).all() )  
+
+ 
 
 
 if __name__ == '__main__':

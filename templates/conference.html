@@ -32,31 +32,48 @@ body{
 {%endblock%}
 
 {% block body %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+$( function() {
+    $( "#datepicker" ).datepicker();
+} );
+</script>
 <div class="conference text-center"> </div>
 <div class="conference-form">
     <form action = "" method = "post" class="form-signin">
-        <h2 class="text-center">Conference Organization Form</h2>       
+        <h2 class="text-center">Conference Organization Form</h2>  
+        <div class="form-group">
+            <input type="text" class="form-control" name="confid" placeholder="Conference ID" required="required" autofocus >
+        </div>     
         <div class="form-group">
             <input type="text" class="form-control" name="name" placeholder="Conference Name" required="required" autofocus >
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" name="shortName" placeholder="Short Name" required="required">
+            <input type="text" class="form-control" name="shortname" placeholder="Short Name" required="required">
         </div>
         <div class="form-group">
             <input type="text" class="form-control" name="year" placeholder="Year" required="required" >
         </div>
         
         <div class="form-group">
-            <input type="date" class="form-control" name="start_date" placeholder="Start Date" required="required" >
+            <input id="datepicker" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="start_date" placeholder="Start Date" required="required" >
         </div>
         <div class="form-group">
-            <input type="date" class="form-control" name="end_date" placeholder="End Date" required="required" >
+            <input type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="end_date" placeholder="End Date" required="required" >
         </div>
         <div class="form-group">
-            <input type="date" class="form-control" name="Deadline" placeholder="Submission Date" required="required" >
+            <input id="date3" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="submission_deadline" placeholder="Submission Date" required="required" >
         </div>
         <div class="form-group">
-            <input type="integer" class="form-control" name="creator_user" placeholder="Creator" required="required" >
+            <select class="form-control" name="creator_user" placeholder="Creator"  required="required" >
+                <option disabled selected>Select your creator id</option>
+                {% for usersinfo in usersinfos %}
+                    <option >{{ usersinfo.authenticationid }}</option> 
+                {% endfor %}        
+            </select>
         </div>
         
         <div class="form-group">
@@ -64,7 +81,7 @@ body{
         </div>
 
         <div class="form-group">
-            <input type="date" class="form-control" name="Creation_DateTime" placeholder="Creation Date" required="required" >
+            <input id="date4" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="Creation_DateTime" placeholder="Creation Date" required="required" >
         </div>
         <div class="form-group">
             <button type="submit" name="submit" class="btn btn-lg btn-primary btn-block">Create</button>
@@ -75,3 +92,4 @@ body{
 </div>
 
 {%endblock%}
+
