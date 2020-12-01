@@ -1,6 +1,6 @@
 from flask import Flask, render_template,request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import select, update
+from sqlalchemy import select, update, and_
 from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
@@ -17,6 +17,7 @@ conn=db.engine.connect()
 City = db.Table('city', db.metadata, autoload=True, autoload_with=db.engine)
 User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine)
 Conf = db.Table('conference', db.metadata, autoload=True, autoload_with=db.engine)
+ConfRole = db.Table('conferenceroles', db.metadata, autoload=True, autoload_with=db.engine)
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -141,7 +142,9 @@ def conference():
 
 @app.route('/user/<int:id>')
 def user(id):
-  return render_template('user.html' )
+   query= select([Conf.c.name, Conf.c.confid, ConfRole.c.confid_role]).where(and_(Conf.c.confid==ConfRole.c.confid,ConfRole.c.authenticationid == id) )
+   conferences= conn.execute(query).fetchall() 
+   return  render_template('user.html', conferences=conferences )
 
 
 if __name__ == '__main__':

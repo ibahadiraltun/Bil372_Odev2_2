@@ -117,3 +117,10 @@ alter table conferenceroles add column confid varchar(20);
 
 alter table conferenceroles add foreing key(confid) references conference(confid);
 
+alter table conferenceroles drop column confid_role 
+alter table conferenceroles add column confid_role int not null
+alter table conferenceroles add foreign key (authenticationid) references usersinfo(authenticationid)
+
+INSERT INTO public.conferenceroles(
+	authenticationid, confid, confid_role)
+	VALUES (4, 'sigir2021', 0);
