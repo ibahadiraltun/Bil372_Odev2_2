@@ -32,7 +32,10 @@ def login():
          else:
             query= select([User.c.status]).where(User.c.primary_email == email)
             status= conn.execute(query).fetchone()[0]
-            if status == 1: return redirect(url_for('user'))
+            if status == 1: 
+               query= select([User.c.authenticationid]).where(User.c.primary_email == email)
+               id= conn.execute(query).fetchone()[0]
+               return redirect(url_for('user', id=id))
             else:
                 error='Need ADMIN approval'
                 return render_template('login.html', error=error)
@@ -136,7 +139,9 @@ def conference():
    else:
       return render_template('conference.html', usersinfos = session.query(User).all() )  
 
- 
+@app.route('/user/<int:id>')
+def user(id):
+  return render_template('user.html' )
 
 
 if __name__ == '__main__':
