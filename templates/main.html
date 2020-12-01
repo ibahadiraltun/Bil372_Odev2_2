@@ -63,40 +63,46 @@
 <div class="error text-center"></div>
 <!-- table needs to be inserted -->
 <div class="main-page">
-    <tbody>
-        <h1>User Requests</h1>
-        <div class="vertical-menu">
-            <a href="#" class="active">
-                <span class="center">
-                    Users
-                </span>
-            </a>
-            {% for usr in users %}
-                <a>
-                    <span class="name">{{ usr.name}}-{{usr.lname}}-{{usr.primary_email}}</span>
-                    <button class="tick"> &#9989; </button>
-                    <button class="cross"> &#10060; </button>
-                </a>
-            {% endfor %}
-        </div>
-    </tbody>
-    <tbody>
-        <h1>Conference Requests</h1>
-        <div class="vertical-menu">
-            <a href="#" class="active">
-                <span class="center">
-                    Conferences
-                </span>
-            </a>
-            {% for conf in confs %}
-                <a id="conf">
-                    <span class="name">{{ conf["name"] }}</span>
-                    <button class="tick"> &#9989; </button>
-                    <button class="cross"> &#10060; </button>
-                </a>
-            {% endfor %}
-        </div>
-    </tbody>
+   <form action="" method="post">
+      <input type="hidden" name="form_type" value="user">
+      <tbody>
+         <h1>User Requests</h1>
+         <div class="vertical-menu">
+               <a href="#" class="active">
+                  <span class="center">
+                     Users
+                  </span>
+               </a>
+               {% for usr in users %}
+                  <a>
+                     <span class="name">{{ usr.name}}-{{usr.lname}}-{{usr.primary_email}}</span>
+                     <button type="submit" name="submit_tick" value="{{ usr.authenticationid }}" class="tick"> &#9989; </button>
+                     <button type="submit" name="submit_cross" value="{{ usr.authenticationid }}" class="cross"> &#10060; </button>
+                  </a>
+               {% endfor %}
+         </div>
+      </tbody>
+   </form>
+   <form action="" method="post">
+      <input type="hidden" name="form_type" value="conf">
+      <tbody>
+         <h1>Conference Requests</h1>
+         <div class="vertical-menu">
+               <a href="#" class="active">
+                  <span class="center">
+                     Conferences
+                  </span>
+               </a>
+               {% for conf in confs %}
+                  <a id="conf">
+                     <span class="name">{{ conf.confid }}</span>
+                     <button type="submit" name="submit_tick" value="{{ conf.confid }}" class="tick"> &#9989; </button>
+                     <button type="submit" name="submit_cross" value="{{ conf.confid }}" class="cross"> &#10060; </button>
+                  </a>
+               {% endfor %}
+         </div>
+      </tbody>
+   </form>
 </div>
 
 {% endblock %}

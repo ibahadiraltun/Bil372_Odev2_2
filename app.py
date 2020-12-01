@@ -2,7 +2,7 @@ from flask import Flask, render_template,request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 #from sqlalchemy.ext.automap import automap_base
 #from sqlalchemy import create_engine
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
@@ -10,7 +10,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ibahadiraltun:test@localhost/bil372-hw2'
 #engine = create_engine("postgresql+psycopg2://postgres:test@localhost/HW2")
 db=SQLAlchemy(app)
 #Base = automap_base()
@@ -18,6 +18,7 @@ db=SQLAlchemy(app)
 session =Session(db.engine)  
 City = db.Table('city', db.metadata, autoload=True, autoload_with=db.engine)
 User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine)
+Conf = db.Table('conference', db.metadata, autoload=True, autoload_with=db.engine)
 #city = Base.classes.city 
    
 
@@ -25,7 +26,7 @@ conf_requests = []
 for i in range(0, 20):
    conf_requests.append({
       'name': 'conf' + str(i),
-      'id': i
+      'confid': i
    })
 
 @app.route('/', methods=['POST', 'GET'])
@@ -79,14 +80,45 @@ def signup():
       else:
          return render_template('signup.html', cities=session.query(City).all(), error = error)   
    else:
-      return render_template('signup.html', cities = session.query(City).all() )   
+      return render_template('signup.html', cities = session.query(City).all() )
 
-       
+def get_users():
+   query=select([User]).where(User.c.status == 0)
+   return db.engine.connect().execute(query)
 
-@app.route('/main')
+def update_user_status(id, status):
+   query = update(User).where(User.c.authenticationid == id).values(status = status)
+   db.engine.connect().execute(query)
+
+def get_confs():
+   query=select([Conf]).where(Conf.c.status == 0)
+   return db.engine.connect().execute(query)
+
+def update_conf_status(id, status):
+   query = update(Conf).where(Conf.c.confid == id).values(status = status)
+   db.engine.connect().execute(query)
+
+def handle_status_change(form, model):
+   id, new_status = None, None
+   if 'submit_tick' in form:
+      new_status = 1
+      id = form['submit_tick']
+   else:
+      new_status = -1
+      id = form['submit_cross']
+   if model == 'User': update_user_status(id, new_status)
+   else: update_conf_status(id, new_status)
+   return render_template('main.html', users = get_users(), confs = get_confs())
+
+@app.route('/main', methods=['POST', 'GET'])
 def main():
-   query=select([User]).where(User.c.status == 0)   
-   return render_template('main.html', users = db.engine.connect().execute(query) , confs = conf_requests)
+   if request.method == 'POST':
+      print(request.form)
+      if (request.form['form_type'] == 'user'):
+         return handle_status_change(form = request.form, model = 'User')
+      return handle_status_change(form = request.form, model = 'Conference')
+   else:
+      return render_template('main.html', users = get_users(), confs = get_confs())
 
 @app.route('/conference')
 def conference():

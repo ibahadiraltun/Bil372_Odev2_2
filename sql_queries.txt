@@ -96,9 +96,21 @@ INSERT INTO public.usersinfo (authenticationid, title, name, lname, affiliation,
 
 INSERT INTO public.usersinfo(
 	 title, name, lname, affiliation, primary_email, secondary_email, password, phone, fax, url, address, city, country, date, status)
-	VALUES ('admin', 'admin', '--', '--', 'admin', '--', 'admin', '--', '--', '--', '--', 'ANKARA', 'TUR', NOW(), 1);
+	 VALUES ('admin', 'admin', '--', '--', 'admin', '--', 'admin', '--', '--', '--', '--', 'ANKARA', 'TUR', NOW(), 1);
+
+INSERT INTO public.usersinfo(
+	 authenticationid, title, name, lname, affiliation, primary_email, secondary_email, password, phone, fax, url, address, city, country, date, status)
+	 VALUES (5, 'prof', 'john', 'smith', '--', 'john', 'john2', 'john', '--', '--', '--', '--', 'ISTANBUL', 'TUR', NOW(), 0),
+	 		(6, 'dr', 'bahadir', 'altun', '--', 'bahadir', 'bahadir2', 'bahadir', '--', '--', '--', '--', 'ISTANBUL', 'TUR', NOW(), 0)	;
 
 
+alter table conference
+add column status int;
+
+INSERT INTO public.conference(
+	 confid, name, shortname, year, start_date, end_date, submission_deadline, creator_user, website, creation_datetime, status)
+	 VALUES ('sigir2021', 'Special Interest Group of Information Retrieval', 'sigir', 2021, '06-06-2021', '09-09-2021', '05-05-2021', 4, '--', NOW(), 0),
+	 		('cikm2020', 'Conference of Information Knowledge and Management', 'cikm', 2020, '06-06-2020', '09-09-2020', '05-05-2020', 5, '--', NOW(), 0);
 
 
 
