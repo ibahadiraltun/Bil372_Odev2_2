@@ -28,6 +28,9 @@
                 <td>{{sub.confid}}</td>
                 <td>{{sub.submissionid}}</td>
                 <td>{{sub.prevsubmissionid}}</td>
+                <td>
+                    <a href="{{url_for('deleteSubmission', subid=sub.submissionid, userid=userid)}}" class="btn btn-outline-danger" > Delete</a>
+                </td>
             </tr>
         {%endfor%}
     </tbody>

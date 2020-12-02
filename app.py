@@ -333,6 +333,13 @@ def newSubmission(userid,confid):
       users= conn.execute(query).fetchall() #only one user
    return render_template('newSubmission.html', userid=userid, users = users)
 
+@app.route('/deleteSubmission/<int:subid>/<int:userid>')
+def deleteSubmission(subid,userid):
+   query = Submission.delete().where(Submission.c.submissionid == subid)
+   conn.execute(query)
+   mongo.db.submissions.deleteOne( { 'submissionid': subid } )
+   return redirect(url_for('submissions', userid=userid))
+
 @app.route('/update/<confid>/<int:userid>' , methods=['POST', 'GET'])
 def user_update_conf(confid,userid):
    if request.method =='POST':
