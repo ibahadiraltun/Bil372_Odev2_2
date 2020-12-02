@@ -140,7 +140,7 @@ CREATE TABLE conferenceupdates (
 create table submissions (
 	authenticationid int not null,
 	confid varchar(20) not null,
-	submissionid serial primary key,
+	submissionid serial primary key not null,
 	prevsubmissionid int,
 	foreign key (authenticationid) references usersinfo(authenticationid),
 	foreign key (confid) references conference(confid)

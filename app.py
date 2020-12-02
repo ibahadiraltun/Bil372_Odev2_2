@@ -118,17 +118,46 @@ def handle_status_change(form, model):
    return render_template('main.html', users = get_users(), confs = get_confs())
 
 def get_submissions_for_user(id):
-    query = select([Submission]).where(Submission.c.authenticationid == id)
-    query_user = select([User]).where(User.c.authenticationid == id)
-    subs = conn.execute(query)
-    username = conn.execute(query_user).fetchone().primary_email
-    print(username)
-    res = []
-    for row in subs:
-        cur_row = dict(row.items())
-        cur_row['username'] = username
-        res.append(cur_row)
-    return res
+   query = select([Submission]).where(Submission.c.authenticationid == id)
+   query_user = select([User]).where(User.c.authenticationid == id)
+   subs = conn.execute(query)
+   username = conn.execute(query_user).fetchone().primary_email
+   res = []
+   for row in subs:
+      cur_row = dict(row.items())
+      cur_row['username'] = username
+      res.append(cur_row)
+   return res
+
+def update_mongodb(id, form): return None
+
+def add_submission_for_user(id, form):
+   # userid = request.form['userid']
+   # confid = request.form['confid']
+   # title = request.form['title']
+   # abstract = request.form['abstract']
+   # keywords = request.form['keywords']
+   # pdf_path = request.form['pdf_path']
+
+   confid = form['confid']
+   query = select([Submission]).where(Submission.c.authenticationid == id
+      and Submission.c.confid == confid)
+   subs = conn.execute(query)
+   prevsubmissionid = -1
+   for sub in subs:
+      if prevsubmissionid < sub['submissionid']:
+         prevsubmissionid = sub['submissionid']
+   
+   values = {
+      'authenticationid': form['userid'],
+      'confid': form['confid'],
+      'prevsubmissionid': prevsubmissionid
+   }
+
+   new_sub = Submission.insert().values(values)
+   conn.execute(new_sub)
+
+   update_mongodb(id, form = request.form) ## -> abdulkadir
 
 @app.route('/main', methods=['POST', 'GET'])
 def main():
@@ -180,8 +209,11 @@ def user(id):
 def submissions(userid):
    return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
 
-@app.route('/newSubmissions/<int:userid>')
+@app.route('/newSubmissions/<int:userid>', methods=['POST', 'GET'])
 def newSubmission(userid):
+   if request.method == 'POST':
+      add_submission_for_user(id = userid, form = request.form)
+      return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
    return render_template('newSubmission.html', userid=userid, confs=get_valid_confs())
 
 @app.route('/update/<confid>' , methods=['POST', 'GET'])
