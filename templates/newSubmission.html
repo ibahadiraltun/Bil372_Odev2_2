@@ -54,6 +54,16 @@ $( function() {
                 {% endfor %}        
             </select>
         </div>
+        <div class="form-group">       
+            <select class="form-control" name="authors"  required="required" multiple>
+                <option disabled selected>Authors</option>
+                {% for usr in users %}
+                    {% if usr.name != 'admin' %}
+                        <option >{{ usr.name }} - {{ usr.lname}}</option> 
+                    {% endif %}
+                {% endfor %}        
+            </select>
+        </div>   
         <div class="form-group">
             <input type="text" class="form-control" name="title" placeholder="Title" required="required">
         </div>

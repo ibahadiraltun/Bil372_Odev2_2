@@ -88,6 +88,10 @@ def get_users():
    query=select([User]).where(User.c.status == 0)
    return conn.execute(query)
 
+def get_valid_users():
+   query=select([User]).where(User.c.status > 0)
+   return conn.execute(query)
+
 def update_user_status(id, status):
    query = update(User).where(User.c.authenticationid == id).values(status = status)
    conn.execute(query)
@@ -138,6 +142,7 @@ def add_submission_for_user(id, form):
    # abstract = request.form['abstract']
    # keywords = request.form['keywords']
    # pdf_path = request.form['pdf_path']
+   # authors = form['authors']
 
    confid = form['confid']
    query = select([Submission]).where(Submission.c.authenticationid == id
@@ -214,7 +219,7 @@ def newSubmission(userid):
    if request.method == 'POST':
       add_submission_for_user(id = userid, form = request.form)
       return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
-   return render_template('newSubmission.html', userid=userid, confs=get_valid_confs())
+   return render_template('newSubmission.html', userid=userid, users = get_valid_users(), confs=get_valid_confs())
 
 @app.route('/update/<confid>' , methods=['POST', 'GET'])
 def user_update(confid):
