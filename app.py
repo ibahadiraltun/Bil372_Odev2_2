@@ -4,7 +4,6 @@ from sqlalchemy import select, update, and_
 from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
-
 from sqlalchemy.sql.operators import nullsfirst_op
 
 app = Flask(__name__)
@@ -18,6 +17,7 @@ conn=db.engine.connect()
 #tables
 City = db.Table('city', db.metadata, autoload=True, autoload_with=db.engine)
 User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine)
+UsersLog = db.Table('userslog', db.metadata, autoload=True, autoload_with=db.engine)
 Conf = db.Table('conference', db.metadata, autoload=True, autoload_with=db.engine)
 ConfRole = db.Table('conferenceroles', db.metadata, autoload=True, autoload_with=db.engine)
 ConfUpdate = db.Table('conferenceupdates', db.metadata, autoload=True, autoload_with=db.engine)
@@ -83,6 +83,29 @@ def signup():
          return render_template('signup.html', cities=session.query(City).all(), error = error)   
    else:
       return render_template('signup.html', cities = session.query(City).all() )
+def insertUserLogs(id):
+   query=select([User]).where(User.c.authenticationid == id)
+   user= conn.execute(query).fetchone()  
+   values = {
+      'authenticationid':user.authenticationid,
+      'title':user.title,
+      'name':user.name,
+      'lname':user.lname,
+      'affiliation':user.affiliation,
+      'primary_email':user.primary_email,
+      'secondary_email':user.secondary_email,
+      'phone': user.phone,
+      'fax': user.fax,
+      'address': user.address,
+      'url': user.url,
+      'city': user.city,
+      'country': user.country,
+      'password': user.password,
+      'date':user.date,
+      'status':user.status
+   }
+   userlog= UsersLog.insert().values(values)
+   conn.execute(userlog)
 
 def get_users():
    query=select([User]).where(User.c.status == 0)
@@ -208,6 +231,37 @@ def user(id):
    query= select([Conf, ConfRole.c.confid_role]).where(and_(Conf.c.confid==ConfRole.c.confid,ConfRole.c.authenticationid == id) )
    conferences= conn.execute(query).fetchall() 
    return  render_template('user.html', conferences=conferences, userid=id  )
+
+@app.route('/user_changeInfo/<int:id>', methods=['POST', 'GET'])
+def user_changeInfo(id):
+   if request.method == 'POST':
+      city_country=request.form['city']
+      tmp = city_country.split("-")
+      city=tmp[0].strip()
+      country=tmp[1].strip()  
+      values = {
+      'title': request.form['title'],
+      'name': request.form['name'],
+      'lname': request.form['lastname'],
+      'affiliation': request.form['affiliation'],
+      'primary_email': request.form['p_email'],
+      'secondary_email': request.form['s_email'],
+      'phone': request.form['phone'],
+      'fax': request.form['fax'],
+      'address': request.form['address'],
+      'url': request.form['URL'],
+      'city': city,
+      'country': country,
+      'password': request.form['password']
+      }
+      insertUserLogs(id)
+      query = update(User).where(User.c.authenticationid == id).values(values)
+      conn.execute(query)
+      return redirect(url_for('user', id=id))
+   query=select([User]).where(User.c.authenticationid == id)
+   user= conn.execute(query).fetchone()
+   return render_template('changeInfo.html', user=user, cities=session.query(City).all())
+
 
 @app.route('/submissions/<int:userid>')
 def submissions(userid):

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block head %} 
+<style>
+.error {
+    font-size:18px;
+    color:#cc0000; 
+    margin-top:30px
+}
+.form-group {
+    margin-bottom: 10px;
+}
+.login-form {
+    width: 500px;
+    margin: 8px auto;
+  	font-size: 15px;
+}
+.login-form form {
+    margin-bottom: 10px;
+    background: #ffffff;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+}
+.login-form h2 {
+    margin: 0 0 5 5px;
+}
+body{
+    background: #f7f7f7;
+}
+</style>
+{%endblock%}
+
+{% block body %}
+<div class="error text-center">{{error}}</div>
+<div class="login-form">
+    <form action = "" method = "post" class="form-signin">
+        <h2 class="text-center">Sign Up</h2>       
+        <div class="form-group">
+            <input type="text" class="form-control" name="title" placeholder=" Salutation/Title" required="required" autofocus value="{{user.title}}" >
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="name" placeholder="Name" required="required" value="{{user.name}}">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="lastname" placeholder="Lastname" required="required" value="{{user.lname}}">
+        </div>
+       
+        <div class="form-group">
+            <input type="text" class="form-control" name="affiliation" placeholder="Affiliation" required="required" value="{{user.affiliation}}" >
+        </div>
+        <div class="form-group">
+            <input type="email" class="form-control" name="p_email" placeholder="Primary Email" required="required" value="{{user.primary_email}}"  >
+        </div>
+        <div class="form-group">
+            <input type="email" class="form-control" name="s_email" placeholder="Secondary Email" required="required" value="{{user.secondary_email}}" >
+        </div>
+        <div class="form-group">
+            <input type="tel" class="form-control" name="phone" placeholder="888 888 8888" pattern="[0-9]{3} [0-9]{3} [0-9]{4}" maxlength="12"   required="required" value="{{user.phone}}">    
+            <label style="font-size:10px;padding-left:20px"> Eg : 552 222 2224  </label>         
+        </div>
+        
+        <div class="form-group">
+            <input type="tel" class="form-control" name="fax" placeholder="90 555 555 8888" pattern="[0-9]{2} [0-9]{3} [0-9]{3} [0-9]{4}" maxlength="15"   required="required" value="{{user.fax}}">    
+            <label style="font-size:10px;padding-left:20px"> Eg : 90 334 222 2224  </label>         
+        </div>
+
+        <div class="form-group">
+            <input type="text" class="form-control" name="address" placeholder="Address" required="required" value="{{user.address}}"  >
+        </div>
+        
+        <div class="form-group">
+            <input type="text" class="form-control" name="URL" placeholder="URL Address" required="required" value="{{user.url}}" >
+        </div>
+       
+
+        <div class="form-group">       
+            <select class="form-control" name="city"  required="required" value="{{user.city}}" >
+                <option disabled >Select your city and country</option>
+                {% for city in cities %}
+                    <option >{{ city.city_name }} - {{city.country_code}}</option> 
+                {% endfor %}        
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <input type="password" class="form-control" name="password" placeholder="Password" minlength="4" required="required" value={{user.password}} >
+        </div>
+        <div class="form-group">
+            <button type="submit" name="submit" class="btn btn-lg btn-primary btn-block">Update</button>
+        </div>
+            
+    </form>
+    
+</div>
+
+{%endblock%}
