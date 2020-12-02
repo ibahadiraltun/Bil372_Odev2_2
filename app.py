@@ -349,5 +349,13 @@ def user_delete_conf(confid,userid):
    conn.execute(query)
    return redirect(url_for('user', id=userid))
 
+@app.route('/authentication/<userid>')
+def user_giveAuthentication(userid):
+   query=select([User]).where(User.c.primary_email != 'admin')
+   usersinfos= conn.execute(query).fetchall()
+   query=select([Conf , ConfRole]).where(Conf.c.confid == ConfRole.c.confid and Conf.c.status==1 and ConfRole.c.authenticationid==userid )
+   conferences= conn.execute(query).fetchall()
+   return render_template('authentication.html', usersinfos=usersinfos, conferences=conferences)
+
 if __name__ == '__main__':
    app.run(debug = True)
