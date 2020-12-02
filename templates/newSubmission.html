@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block head %} 
+<style>
+.error {
+    font-size:18px;
+    color:#cc0000; 
+    margin-top:30px
+}
+.form-group {
+    margin-bottom: 10px;
+}
+.conference-form {
+    width: 500px;
+    margin: 8px auto;
+    font-size: 15px;
+}
+.conference-form form {
+    margin-bottom: 10px;
+    background: #ffffff;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+}
+.conference-form h2 {
+    margin: 0 0 5 5px;
+}
+
+body{
+    background: #f7f7f7;
+}
+</style>
+{%endblock%}
+
+{% block body %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+$( function() {
+    $( "#datepicker" ).datepicker();
+} );
+</script>
+<div class="conference text-center"> </div>
+<div class="conference-form">
+    <form action = "" method = "post" class="form-signin">
+        <h2 class="text-center">New Submission</h2>
+        <input type="hidden" name="userid" value="{{ userid }}">
+        <div class="form-group">       
+            <select class="form-control" name="confid"  required="required" >
+                <option disabled selected>Conference name</option>
+                {% for conf in confs %}
+                    <option >{{ conf.confid }}</option> 
+                {% endfor %}        
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="shortname" placeholder="Short Name" required="required">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="year" placeholder="Year" required="required" >
+        </div>
+        
+        <div class="form-group">
+            <label style="font-size:15px;"> Start Date  </label>
+            <input id="datepicker" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="start_date" placeholder="Start Date" required="required" >
+        </div>
+        <div class="form-group">
+            <label style="font-size:15px;"> End Date  </label>
+            <input type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="end_date" placeholder="End Date" required="required" >
+        </div>
+        <div class="form-group">
+            <label style="font-size:15px;"> Submission Deadline  </label>
+            <input id="date3" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="submission_deadline" placeholder="Submission Date" required="required" >
+        </div>
+        
+        <div class="form-group">
+            <input type="url" class="form-control" name="website" placeholder="https://example.com" required="required" >
+        </div>
+
+            <button type="submit" name="submit" class="btn btn-lg btn-primary btn-block">Create</button>
+        </div>
+            
+    </form>
+    
+</div>
+
+{%endblock%}
+

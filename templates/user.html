@@ -4,6 +4,7 @@
 {% endblock %}
 {% block body %}
 <nav class="navbar navbar-light bg-light">
+    <a href="{{url_for('submissions', userid=userid)}}">Submissions</a>
     <form class="form-inline" style="margin-left:auto">
         <a href="{{url_for('conference', userid=userid)}}" class="btn btn-outline-danger" > Add New Conference </a>
     </form>
