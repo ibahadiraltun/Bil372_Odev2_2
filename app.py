@@ -144,7 +144,7 @@ def get_submissions_for_user(id):
       res.append(cur_row)
    return res
 
-def update_mongodb():
+def update_mongodb(values):
     mongo.db.submissions.insert(values)
 
 def add_submission_for_user(id, form):
@@ -157,8 +157,12 @@ def add_submission_for_user(id, form):
    # authors = form['authors']
 
    confid = form['confid']
-   query = select([Submission]).where(Submission.c.authenticationid == id
-      and Submission.c.confid == confid)
+   query = select([Submission]).where(
+      and_(
+         Submission.c.authenticationid == id,
+         Submission.c.confid == confid
+      )
+   )
    subs = conn.execute(query)
    prevsubmissionid = -1
    for sub in subs:
@@ -172,10 +176,26 @@ def add_submission_for_user(id, form):
    }
 
    new_sub = Submission.insert().values(values)
-   subid = conn.execute(new_sub).fetchone().submissionid
+   conn.execute(new_sub)
+   query_subid = select([Submission]).where(
+      and_(
+         Submission.c.authenticationid == id,
+         Submission.c.confid == form['confid'],
+         Submission.c.prevsubmissionid == prevsubmissionid
+      )
+   )
+   subid = conn.execute(query_subid).fetchone().submissionid
 
    now = datetime.now()
    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+
+   author_infos = []
+   for aut in form.getlist('authors'):
+      id = int(aut.split(' - ')[2])
+      query_aut = select([User]).where(User.c.authenticationid == id)
+      infos = conn.execute(query_aut).fetchone()
+      infos_dict = dict(infos)
+      author_infos.append(infos_dict)
 
    values_mongodb = {
       'prevsubmissionid': str(prevsubmissionid),
@@ -183,7 +203,7 @@ def add_submission_for_user(id, form):
       'title': form['title'],
       'abstract': form['abstract'],
       'keywords': str(form['keywords'].split(',')),
-      'authors': str([i for i in form['authors']]),
+      'authors': author_infos,
       'submitted_by': str(id),
       'corresponding author': str(id),
       'pdf_path': form['pdf_path'],
@@ -193,7 +213,7 @@ def add_submission_for_user(id, form):
       'active': '0'
    }
 
-   update_mongodb(values) ## -> abdulkadir
+   update_mongodb(values_mongodb)
 
 @app.route('/main', methods=['POST', 'GET'])
 def main():

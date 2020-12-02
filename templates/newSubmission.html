@@ -59,7 +59,7 @@ $( function() {
                 <option disabled selected>Authors</option>
                 {% for usr in users %}
                     {% if usr.name != 'admin' %}
-                        <option >{{ usr.name }} - {{ usr.lname}}</option> 
+                        <option >{{ usr.name }} - {{ usr.lname}} - {{ usr.authenticationid }}</option> 
                     {% endif %}
                 {% endfor %}        
             </select>
