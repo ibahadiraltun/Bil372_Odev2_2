@@ -146,3 +146,14 @@ create table submissions (
 	foreign key (confid) references conference(confid)
 );
 
+alter table userslog drop column authenticationid 
+
+alter table userslog add column authenticationid int not null
+
+alter table userslog drop column primary_email
+
+alter table userslog drop column secondary_email
+
+alter table userslog add column primary_email varchar(100) not null
+
+alter table userslog add column secondary_email varchar(100) not null

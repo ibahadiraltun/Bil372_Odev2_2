@@ -4,7 +4,7 @@
 {% endblock %}
 {% block body %}
 <nav class="navbar navbar-light bg-light">
-    <a href="{{url_for('submissions', userid=userid)}}">Submissions</a>
+    <a href="{{url_for('submissions', userid=userid)}}" class="btn btn-outline-primary" >Submissions</a>
     <form class="form-inline" style="margin-left:auto">
         <a href="{{url_for('user_changeInfo', id=userid)}}" class="btn btn-info" >Change your info </a>
         <a href="#" class="btn btn-info" style="margin-left:5px" > Give authentication a user </a>     

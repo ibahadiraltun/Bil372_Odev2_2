@@ -20,7 +20,7 @@ app.config['MONGO_URI'] = 'mongodb://localhost:27017/local'
 mongo = PyMongo(app)
 
 #connection to database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ibahadiraltun:@localhost/bil372-hw2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
 db=SQLAlchemy(app)
 session =Session(db.engine)
 conn=db.engine.connect()
