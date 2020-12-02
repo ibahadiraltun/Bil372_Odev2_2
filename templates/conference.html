@@ -59,31 +59,22 @@ $( function() {
         </div>
         
         <div class="form-group">
+            <label style="font-size:15px;"> Start Date  </label>
             <input id="datepicker" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="start_date" placeholder="Start Date" required="required" >
         </div>
         <div class="form-group">
+            <label style="font-size:15px;"> End Date  </label>
             <input type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="end_date" placeholder="End Date" required="required" >
         </div>
         <div class="form-group">
+            <label style="font-size:15px;"> Submission Deadline  </label>
             <input id="date3" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="submission_deadline" placeholder="Submission Date" required="required" >
-        </div>
-        <div class="form-group">
-            <select class="form-control" name="creator_user" placeholder="Creator"  required="required" >
-                <option disabled selected>Select your creator id</option>
-                {% for usersinfo in usersinfos %}
-                    <option >{{ usersinfo.authenticationid }}</option> 
-                {% endfor %}        
-            </select>
         </div>
         
         <div class="form-group">
-            <input type="url" class="form-control" name="website" placeholder="Website" required="required" >
+            <input type="url" class="form-control" name="website" placeholder="https://example.com" required="required" >
         </div>
 
-        <div class="form-group">
-            <input id="date4" type="date" data-date="" data-date-format="DD/MM/YYYY" class="form-control" name="Creation_DateTime" placeholder="Creation Date" required="required" >
-        </div>
-        <div class="form-group">
             <button type="submit" name="submit" class="btn btn-lg btn-primary btn-block">Create</button>
         </div>
             

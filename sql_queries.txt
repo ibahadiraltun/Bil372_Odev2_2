@@ -124,3 +124,14 @@ alter table conferenceroles add foreign key (authenticationid) references usersi
 INSERT INTO public.conferenceroles(
 	authenticationid, confid, confid_role)
 	VALUES (4, 'sigir2021', 0);
+
+CREATE TABLE conferenceupdates (
+	confid VARCHAR(20) PRIMARY KEY NOT NULL,
+	name VARCHAR ( 100 ) NOT NULL,
+	shortname VARCHAR ( 19 )  NOT NULL,
+	year INT  NOT NULL,
+	start_date date NOT NULL, 
+	end_date date NOT NULL,
+	submission_deadline date NOT NULL,
+	website VARCHAR(100)
+);

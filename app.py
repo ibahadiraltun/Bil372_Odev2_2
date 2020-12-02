@@ -18,7 +18,7 @@ City = db.Table('city', db.metadata, autoload=True, autoload_with=db.engine)
 User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine)
 Conf = db.Table('conference', db.metadata, autoload=True, autoload_with=db.engine)
 ConfRole = db.Table('conferenceroles', db.metadata, autoload=True, autoload_with=db.engine)
-
+ConfUpdate = db.Table('conferenceupdates', db.metadata, autoload=True, autoload_with=db.engine)
 
 @app.route('/', methods=['POST', 'GET'])
 def login():
@@ -37,7 +37,7 @@ def login():
                query= select([User.c.authenticationid]).where(User.c.primary_email == email)
                id= conn.execute(query).fetchone()[0]
                return redirect(url_for('user', id=id))
-            else:
+            else: #2 for delete, 0 for inactive
                 error='Need ADMIN approval'
                 return render_template('login.html', error=error)
       else:
@@ -119,9 +119,8 @@ def main():
    else:
       return render_template('main.html', users = get_users(), confs = get_confs())
 
-@app.route('/conference', methods=['POST', 'GET'])
-def conference(): 
-   
+@app.route('/conference/<userid>', methods=['POST', 'GET'])
+def conference(userid):   
    if request.method == 'POST':
       confid=request.form['confid']
       name=request.form['name']
@@ -130,11 +129,10 @@ def conference():
       start_date=request.form['start_date']
       end_date=request.form['end_date']
       submission_deadline=request.form['submission_deadline']
-      creator_user=request.form['creator_user']
+      creator_user=userid
       website=request.form['website']
-      Creation_DateTime=request.form['Creation_DateTime']
-      dt = datetime.utcnow()
-      new_conference= Conf.insert().values(confid=confid,name=name, shortname=shortname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,creator_user=creator_user,website=website,Creation_DateTime=Creation_DateTime)
+      Creation_DateTime = datetime.utcnow()
+      new_conference= Conf.insert().values(confid=confid,name=name, shortname=shortname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,creator_user=creator_user,website=website,Creation_DateTime=Creation_DateTime,status=0)
       conn.execute(new_conference)
       return redirect(url_for('main'))
    else:
@@ -142,10 +140,27 @@ def conference():
 
 @app.route('/user/<int:id>')
 def user(id):
-   query= select([Conf.c.name, Conf.c.confid, ConfRole.c.confid_role]).where(and_(Conf.c.confid==ConfRole.c.confid,ConfRole.c.authenticationid == id) )
+   query= select([Conf, ConfRole.c.confid_role]).where(and_(Conf.c.confid==ConfRole.c.confid,ConfRole.c.authenticationid == id) )
    conferences= conn.execute(query).fetchall() 
-   return  render_template('user.html', conferences=conferences )
+   return  render_template('user.html', conferences=conferences, userid=id )
 
+@app.route('/update/<confid>' , methods=['POST', 'GET'])
+def user_update(confid):
+   if request.method =='POST':
+      name=request.form['name']
+      sname=request.form['shortname']
+      year=request.form['year']
+      start_date=request.form['start_date']
+      end_date=request.form['end_date']
+      submission_deadline=request.form['submission_deadline']
+      website=request.form['website']
+      query= ConfUpdate.insert().values(confid=confid,name=name, shortname=sname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,website=website)
+      conn.execute(query)
+
+   else:
+      query=select([Conf]).where(Conf.c.confid == confid)
+      conference= conn.execute(query).fetchone()
+      return render_template('updateConference.html', conf=conference)
 
 if __name__ == '__main__':
    app.run(debug = True)

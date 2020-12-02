@@ -1,88 +1,46 @@
 {% extends "base.html" %}
 {% block head %}   
-<style>
-.center {
-    margin-left: 45%;
-}
-.name {
-    margin-left: 20%;
-}
-.tick {
-    background-color: Transparent;
-    border: none;
-    cursor: pointer;
-    overflow: hidden;
-    outline: none;
-    margin-left: 90px;
-}
-.cross {
-    background-color: Transparent;
-    border: none;
-    cursor: pointer;
-    overflow: hidden;
-    outline: none;
-    margin-left: 10px;
-}
-.error {
-    font-size:18px;
-    color:#cc0000; 
-    margin-top:30px
-}
-.main-page {
-    margin: 50px 50px;
-  	font-size: 15px;
-}
-.vertical-menu {
-    width: 800px;
-    height: 450px;
-    overflow-y: auto;
-}
 
-.vertical-menu a {
-    background-color: #eee;
-    color: black;
-    display: block;
-    padding: 12px;
-    text-decoration: none;
-}
-
-.vertical-menu a:hover {
-    background-color: #ccc;
-}
-
-.vertical-menu a.active {
-    background-color: #4CAF50;
-    color: white;
-}
-</style>
 {% endblock %}
 {% block body %}
 <nav class="navbar navbar-light bg-light">
     <form class="form-inline" style="margin-left:auto">
-      <button class="btn btn-outline-success" type="button">Add new conference</button>
+        <a href="{{url_for('conference', userid=userid)}}" class="btn btn-outline-danger" > Add New Conference </a>
     </form>
   </nav>
-  <!--will be edited-->
-  <div class="main-page">
-    <form action="" method="post">
-       <tbody>
-          <div class="vertical-menu">
-                <a href="#" class="active">
-                   <span class="center">
-                      Conferences
-                   </span>
-                </a>
-                {% for conference in conferences %}
-                   <a>
-                      <span class="name">{{ conference.name }}</span>
-                      {%if conference.confid_role == 0 %}
-                      <button type="submit" name="update" value="{{ conference.confid }}" class="btn btn-success" style='margin-left:40px'> Update </button>
-                      <button type="submit" name="delete" value="{{ conference.confid }}" class="btn btn-danger" > Delete </button>
-                      {%endif%}
-                   </a>
-                {% endfor %}
-          </div>
-       </tbody>
-    </form>
-   </div> 
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Confid</th>
+        <th scope="col">Name</th>
+        <th scope="col">Short Name</th>
+        <th scope="col">Year</th>
+        <th scope="col">Start Date</th>
+        <th scope="col">End Date</th>
+        <th scope="col">Submission Deadline</th>
+        <th scope="col">Website</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for conf in conferences%}
+            <tr>
+                <th scope="row"> {{conf.confid}}</th>
+                <td>{{conf.name}}</td>
+                <td>{{conf.shortname}}</td>
+                <td>{{conf.year}}</td>
+                <td>{{conf.start_date}}</td>
+                <td>{{conf.end_date}}</td>
+                <td>{{conf.submission_deadline}}</td>
+                <td>{{conf.website}}</td>
+                {%if conf.confid_role == 0 %}
+                    <td>
+                        <a href="/update/{{conf.confid}}" class="btn btn-outline-primary" > Update</a>
+                        <a href="#" class="btn btn-outline-danger" > Delete</a>
+                    </td> 
+                {%endif%}
+            </tr>
+        {%endfor%}
+    </tbody>
+  </table>
 {% endblock %}
