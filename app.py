@@ -363,7 +363,25 @@ def user_giveAuthentication(userid):
    usersinfos= conn.execute(query).fetchall()
    query=select([Conf , ConfRole]).where(Conf.c.confid == ConfRole.c.confid and Conf.c.status==1 and ConfRole.c.authenticationid==userid )
    conferences= conn.execute(query).fetchall()
-   return render_template('authentication.html', usersinfos=usersinfos, conferences=conferences)
+   if request.method == 'POST':
+      var = request.form['user']
+      i = var.rfind("-")
+      email = var[i+1:]
+      query=select([User.c.authenticationid]).where(User.c.primary_email == email)
+      result= conn.execute(query).fetchone()[0]
+      confid=request.form['conference']
+      j = confid.find("-")
+      id = confid[0:j]
+      query=select([Conf.c.confid]).where(Conf.c.name == id)
+      result2= conn.execute(query).fetchone()[0]
+      roles = request.form['roles']
+      if(roles.find("Chair")): roles = 0
+      else: roles = 1
+      new_conference= ConfRole.insert().values(authenticationid=result,confid=result2,confid_role=roles)
+      conn.execute(new_conference)
+      return redirect(url_for('user', id=userid))
+   
+   return render_template('confAuth.html', usersinfos=usersinfos, conferences=conferences)
 
 if __name__ == '__main__':
    app.run(debug = True)
