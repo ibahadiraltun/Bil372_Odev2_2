@@ -21,6 +21,7 @@ User = db.Table('usersinfo', db.metadata, autoload=True, autoload_with=db.engine
 Conf = db.Table('conference', db.metadata, autoload=True, autoload_with=db.engine)
 ConfRole = db.Table('conferenceroles', db.metadata, autoload=True, autoload_with=db.engine)
 ConfUpdate = db.Table('conferenceupdates', db.metadata, autoload=True, autoload_with=db.engine)
+Submission = db.Table('submissions', db.metadata, autoload=True, autoload_with=db.engine)
 
 @app.route('/', methods=['POST', 'GET'])
 def login():
@@ -87,13 +88,21 @@ def get_users():
    query=select([User]).where(User.c.status == 0)
    return conn.execute(query)
 
+def get_valid_users():
+   query=select([User]).where(User.c.status > 0)
+   return conn.execute(query)
+
 def update_user_status(id, status):
    query = update(User).where(User.c.authenticationid == id).values(status = status)
    conn.execute(query)
 
 def get_confs():
-   query=select([Conf]).where(Conf.c.status == 0)
+   query = select([Conf]).where(Conf.c.status == 0)
    return conn.execute(query)
+
+def get_valid_confs():
+    query = select([Conf]).where(Conf.c.status > 0)
+    return conn.execute(query)
 
 def update_conf_status(id, status):
    query = update(Conf).where(Conf.c.confid == id).values(status = status)
@@ -111,6 +120,49 @@ def handle_status_change(form, model):
    else: update_conf_status(id, new_status)
    
    return render_template('main.html', users = get_users(), confs = get_confs())
+
+def get_submissions_for_user(id):
+   query = select([Submission]).where(Submission.c.authenticationid == id)
+   query_user = select([User]).where(User.c.authenticationid == id)
+   subs = conn.execute(query)
+   username = conn.execute(query_user).fetchone().primary_email
+   res = []
+   for row in subs:
+      cur_row = dict(row.items())
+      cur_row['username'] = username
+      res.append(cur_row)
+   return res
+
+def update_mongodb(id, form): return None
+
+def add_submission_for_user(id, form):
+   # userid = request.form['userid']
+   # confid = request.form['confid']
+   # title = request.form['title']
+   # abstract = request.form['abstract']
+   # keywords = request.form['keywords']
+   # pdf_path = request.form['pdf_path']
+   # authors = form['authors']
+
+   confid = form['confid']
+   query = select([Submission]).where(Submission.c.authenticationid == id
+      and Submission.c.confid == confid)
+   subs = conn.execute(query)
+   prevsubmissionid = -1
+   for sub in subs:
+      if prevsubmissionid < sub['submissionid']:
+         prevsubmissionid = sub['submissionid']
+   
+   values = {
+      'authenticationid': form['userid'],
+      'confid': form['confid'],
+      'prevsubmissionid': prevsubmissionid
+   }
+
+   new_sub = Submission.insert().values(values)
+   conn.execute(new_sub)
+
+   update_mongodb(id, form = request.form) ## -> abdulkadir
 
 @app.route('/main', methods=['POST', 'GET'])
 def main():
@@ -157,6 +209,17 @@ def user(id):
    conferences= conn.execute(query).fetchall() 
    return  render_template('user.html', conferences=conferences, userid=id  )
 
+@app.route('/submissions/<int:userid>')
+def submissions(userid):
+   return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
+
+@app.route('/newSubmissions/<int:userid>', methods=['POST', 'GET'])
+def newSubmission(userid):
+   if request.method == 'POST':
+      add_submission_for_user(id = userid, form = request.form)
+      return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
+   return render_template('newSubmission.html', userid=userid, users = get_valid_users(), confs=get_valid_confs())
+
 @app.route('/update/<confid>/<int:userid>' , methods=['POST', 'GET'])
 def user_update_conf(confid,userid):
    if request.method =='POST':
@@ -174,7 +237,6 @@ def user_update_conf(confid,userid):
       query=select([Conf]).where(Conf.c.confid == confid)
       conference= conn.execute(query).fetchone()
       return render_template('updateConference.html', conf=conference)
-
 
 @app.route('/delete/<confid>/<int:userid>')
 def user_delete_conf(confid,userid):

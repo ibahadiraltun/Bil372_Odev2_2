@@ -113,13 +113,13 @@ INSERT INTO public.conference(
 	 		('cikm2020', 'Conference of Information Knowledge and Management', 'cikm', 2020, '06-06-2020', '09-09-2020', '05-05-2020', 5, '--', NOW(), 0);
 
 
-alter table conferenceroles add column confid varchar(20);
+alter table public.conferenceroles add column confid varchar(20);
 
-alter table conferenceroles add foreing key(confid) references conference(confid);
+alter table public.conferenceroles add foreign key(confid) references conference(confid);
 
-alter table conferenceroles drop column confid_role 
-alter table conferenceroles add column confid_role int not null
-alter table conferenceroles add foreign key (authenticationid) references usersinfo(authenticationid)
+alter table public.conferenceroles drop column confid_role;
+alter table public.conferenceroles add column confid_role int not null;
+alter table public.conferenceroles add foreign key (authenticationid) references usersinfo(authenticationid);
 
 INSERT INTO public.conferenceroles(
 	authenticationid, confid, confid_role)
@@ -135,3 +135,14 @@ CREATE TABLE conferenceupdates (
 	submission_deadline date NOT NULL,
 	website VARCHAR(100)
 );
+
+
+create table submissions (
+	authenticationid int not null,
+	confid varchar(20) not null,
+	submissionid serial primary key not null,
+	prevsubmissionid int,
+	foreign key (authenticationid) references usersinfo(authenticationid),
+	foreign key (confid) references conference(confid)
+);
+

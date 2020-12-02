@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block head %}   
+
+{% endblock %}
+{% block body %}
+
+<nav class="navbar navbar-light bg-light">
+    <form class="form-inline" style="margin-left:auto">
+        <a href="{{url_for('newSubmission', userid=userid)}}" class="btn btn-outline-danger" > Add New Submission </a>
+    </form>
+</nav>
+
+<table class="table">
+    <thead>
+        <tr>
+        <th scope="col">Authentication ID</th>
+        <th scope="col">Username</th>
+        <th scope="col">Conf ID</th>
+        <th scope="col">Submission ID</th>
+        <th scope="col">Prev Submission ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for sub in submissions%}
+            <tr>
+                <th scope="row"> {{sub.authenticationid}}</th>
+                <td>{{sub.username}}</td>
+                <td>{{sub.confid}}</td>
+                <td>{{sub.submissionid}}</td>
+                <td>{{sub.prevsubmissionid}}</td>
+            </tr>
+        {%endfor%}
+    </tbody>
+</table>
+{% endblock %}
