@@ -5,10 +5,12 @@ from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
 
+from sqlalchemy.sql.operators import nullsfirst_op
+
 app = Flask(__name__)
 
 #connection to database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/odev2'
 db=SQLAlchemy(app)
 session =Session(db.engine)
 conn=db.engine.connect()
@@ -122,15 +124,27 @@ def main():
 @app.route('/conference/<userid>', methods=['POST', 'GET'])
 def conference(userid):   
    if request.method == 'POST':
-      confid=request.form['confid']
+      #confid=request.form['confid']
       name=request.form['name']
       shortname=request.form['shortname']
       year=request.form['year']
+      yearToString=year.strftime("%Y")
       start_date=request.form['start_date']
       end_date=request.form['end_date']
       submission_deadline=request.form['submission_deadline']
       creator_user=userid
       website=request.form['website']
+      confid='the_' + shortname + '_' + year
+      query=select([Conf]).where(Conf.c.confid == confid)
+      if query != '':
+         karakter = "_"
+         a = confid.rfind(karakter) + 2
+         length = len(confid)
+         if(a == length):
+            num = int(confid[-1]) + 1
+            confid = confid[0:len(confid)-1] + str(num)
+         else:
+            confid = confid + "_2"  
       Creation_DateTime = datetime.utcnow()
       new_conference= Conf.insert().values(confid=confid,name=name, shortname=shortname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,creator_user=creator_user,website=website,Creation_DateTime=Creation_DateTime,status=0)
       conn.execute(new_conference)
