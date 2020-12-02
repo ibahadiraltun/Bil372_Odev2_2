@@ -5,22 +5,22 @@ from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
 from sqlalchemy.sql.operators import nullsfirst_op
-from flask_pymongo import PyMongo
-from pymongo import MongoClient
+#from flask_pymongo import PyMongo
+#from pymongo import MongoClient
 
 from datetime import datetime
 
 
-client = MongoClient('mongodb://localhost:27017/')
+#client = MongoClient('mongodb://localhost:27017/')
 app = Flask(__name__)
 
 app.config['MONGO_DBNAME'] = 'local'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/local'
 
-mongo = PyMongo(app)
+#mongo = PyMongo(app)
 
 #connection to database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/odev2'
 db=SQLAlchemy(app)
 session =Session(db.engine)
 conn=db.engine.connect()
@@ -376,7 +376,8 @@ def user_giveAuthentication(userid):
       result2= conn.execute(query).fetchone()[0]
       roles = request.form['roles']
       if(roles.find("Chair")): roles = 0
-      else: roles = 1
+      if(roles.find("Reviewer")): roles = 1
+      if(roles.find("Author")): roles = 2
       new_conference= ConfRole.insert().values(authenticationid=result,confid=result2,confid_role=roles)
       conn.execute(new_conference)
       return redirect(url_for('user', id=userid))
