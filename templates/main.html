@@ -95,8 +95,8 @@
                {% for conf in confs %}
                   <a id="conf">
                      <span class="name">{{ conf.confid }}</span>
-                     <button type="submit" name="submit_tick" value="{{ conf.confid }}" class="tick"> &#9989; </button>
-                     <button type="submit" name="submit_cross" value="{{ conf.confid }}" class="cross"> &#10060; </button>
+                     <button type="submit" name="submit_tick" value="{{ conf.confid }} - {{ conf.creator_user }}" class="tick"> &#9989; </button>
+                     <button type="submit" name="submit_cross" value="{{ conf.confid }} - {{ conf.creator_user }}" class="cross"> &#10060; </button>
                   </a>
                {% endfor %}
          </div>
