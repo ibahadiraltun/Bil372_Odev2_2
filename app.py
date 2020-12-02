@@ -5,22 +5,22 @@ from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
 from sqlalchemy.sql.operators import nullsfirst_op
-from flask_pymongo import PyMongo
-from pymongo import MongoClient
+#from flask_pymongo import PyMongo
+#from pymongo import MongoClient
 
 from datetime import datetime
 
 
-client = MongoClient('mongodb://localhost:27017/')
+#client = MongoClient('mongodb://localhost:27017/')
 app = Flask(__name__)
 
 app.config['MONGO_DBNAME'] = 'local'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/local'
 
-mongo = PyMongo(app)
+#mongo = PyMongo(app)
 
 #connection to database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/odev2'
 db=SQLAlchemy(app)
 session =Session(db.engine)
 conn=db.engine.connect()
@@ -138,20 +138,26 @@ def get_valid_confs():
     query = select([Conf]).where(Conf.c.status > 0)
     return conn.execute(query)
 
-def update_conf_status(id, status):
+def update_conf_status(id, status, creator_user):
    query = update(Conf).where(Conf.c.confid == id).values(status = status)
    conn.execute(query)
+   query_role = ConfRole.insert().values(authenticationid = creator_user, confid = id, confid_role = 0)
+   conn.execute(query_role)
 
 def handle_status_change(form, model):
    is_tick = ('submit_tick' in form)
    new_status = is_tick + (1 - is_tick) * -1
    id = -1
 
-   if is_tick: id = form['submit_tick']
-   else: id = form['submit_cross']
+   if is_tick: id = form['submit_tick'].split(' - ')[0]
+   else: id = form['submit_cross'].split(' - ')[0]
 
    if model == 'User': update_user_status(id, new_status)
-   else: update_conf_status(id, new_status)
+   else:
+      creator_user = -1
+      if is_tick: creator_user = form['submit_tick'].split(' - ')[1]
+      else: creator_user = form['submit_cross'].split(' - ')[1]
+      update_conf_status(id, new_status, creator_user)
    
    return render_template('main.html', users = get_users(), confs = get_confs())
 
@@ -370,7 +376,26 @@ def user_giveAuthentication(userid):
    usersinfos= conn.execute(query).fetchall()
    query=select([Conf , ConfRole]).where(Conf.c.confid == ConfRole.c.confid and Conf.c.status==1 and ConfRole.c.authenticationid==userid )
    conferences= conn.execute(query).fetchall()
-   return render_template('authentication.html', usersinfos=usersinfos, conferences=conferences)
+   if request.method == 'POST':
+      var = request.form['user']
+      i = var.rfind("-")
+      email = var[i+1:]
+      query=select([User.c.authenticationid]).where(User.c.primary_email == email)
+      result= conn.execute(query).fetchone()[0]
+      confid=request.form['conference']
+      j = confid.find("-")
+      id = confid[0:j]
+      query=select([Conf.c.confid]).where(Conf.c.name == id)
+      result2= conn.execute(query).fetchone()[0]
+      roles = request.form['roles']
+      if(roles.find("Chair")): roles = 0
+      if(roles.find("Reviewer")): roles = 1
+      if(roles.find("Author")): roles = 2
+      new_conference= ConfRole.insert().values(authenticationid=result,confid=result2,confid_role=roles)
+      conn.execute(new_conference)
+      return redirect(url_for('user', id=userid))
+   
+   return render_template('confAuth.html', usersinfos=usersinfos, conferences=conferences)
 
 if __name__ == '__main__':
    app.run(debug = True)
