@@ -138,20 +138,26 @@ def get_valid_confs():
     query = select([Conf]).where(Conf.c.status > 0)
     return conn.execute(query)
 
-def update_conf_status(id, status):
+def update_conf_status(id, status, creator_user):
    query = update(Conf).where(Conf.c.confid == id).values(status = status)
    conn.execute(query)
+   query_role = ConfRole.insert().values(authenticationid = creator_user, confid = id, confid_role = 0)
+   conn.execute(query_role)
 
 def handle_status_change(form, model):
    is_tick = ('submit_tick' in form)
    new_status = is_tick + (1 - is_tick) * -1
    id = -1
 
-   if is_tick: id = form['submit_tick']
-   else: id = form['submit_cross']
+   if is_tick: id = form['submit_tick'].split(' - ')[0]
+   else: id = form['submit_cross'].split(' - ')[0]
 
    if model == 'User': update_user_status(id, new_status)
-   else: update_conf_status(id, new_status)
+   else:
+      creator_user = -1
+      if is_tick: creator_user = form['submit_tick'].split(' - ')[1]
+      else: creator_user = form['submit_cross'].split(' - ')[1]
+      update_conf_status(id, new_status, creator_user)
    
    return render_template('main.html', users = get_users(), confs = get_confs())
 
