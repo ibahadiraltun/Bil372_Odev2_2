@@ -5,11 +5,22 @@ from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
 from sqlalchemy.sql.operators import nullsfirst_op
+from flask_pymongo import PyMongo
+from pymongo import MongoClient
 
+from datetime import datetime
+
+
+client = MongoClient('mongodb://localhost:27017/')
 app = Flask(__name__)
 
+app.config['MONGO_DBNAME'] = 'local'
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/local'
+
+mongo = PyMongo(app)
+
 #connection to database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ibahadiraltun:@localhost/bil372-hw2'
 db=SQLAlchemy(app)
 session =Session(db.engine)
 conn=db.engine.connect()
@@ -156,7 +167,8 @@ def get_submissions_for_user(id):
       res.append(cur_row)
    return res
 
-def update_mongodb(id, form): return None
+def update_mongodb(values):
+    mongo.db.submissions.insert(values)
 
 def add_submission_for_user(id, form):
    # userid = request.form['userid']
@@ -168,8 +180,12 @@ def add_submission_for_user(id, form):
    # authors = form['authors']
 
    confid = form['confid']
-   query = select([Submission]).where(Submission.c.authenticationid == id
-      and Submission.c.confid == confid)
+   query = select([Submission]).where(
+      and_(
+         Submission.c.authenticationid == id,
+         Submission.c.confid == confid
+      )
+   )
    subs = conn.execute(query)
    prevsubmissionid = -1
    for sub in subs:
@@ -184,8 +200,43 @@ def add_submission_for_user(id, form):
 
    new_sub = Submission.insert().values(values)
    conn.execute(new_sub)
+   query_subid = select([Submission]).where(
+      and_(
+         Submission.c.authenticationid == id,
+         Submission.c.confid == form['confid'],
+         Submission.c.prevsubmissionid == prevsubmissionid
+      )
+   )
+   subid = conn.execute(query_subid).fetchone().submissionid
 
-   update_mongodb(id, form = request.form) ## -> abdulkadir
+   now = datetime.now()
+   dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+
+   author_infos = []
+   for aut in form.getlist('authors'):
+      id = int(aut.split(' - ')[2])
+      query_aut = select([User]).where(User.c.authenticationid == id)
+      infos = conn.execute(query_aut).fetchone()
+      infos_dict = dict(infos)
+      author_infos.append(infos_dict)
+
+   values_mongodb = {
+      'prevsubmissionid': str(prevsubmissionid),
+      'submissionid': str(subid),
+      'title': form['title'],
+      'abstract': form['abstract'],
+      'keywords': str(form['keywords'].split(',')),
+      'authors': author_infos,
+      'submitted_by': str(id),
+      'corresponding author': str(id),
+      'pdf_path': form['pdf_path'],
+      'type': 'article',
+      'submission_date_time': dt_string,
+      'status': '1',
+      'active': '0'
+   }
+
+   update_mongodb(values_mongodb)
 
 @app.route('/main', methods=['POST', 'GET'])
 def main():
