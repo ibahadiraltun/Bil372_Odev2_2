@@ -6,11 +6,11 @@
 <nav class="navbar navbar-light bg-light">
     <a href="{{url_for('submissions', userid=userid)}}">Submissions</a>
     <form class="form-inline" style="margin-left:auto">
-        <a href="{{url_for('conference', userid=userid)}}" class="btn btn-outline-danger" > Add New Conference </a>
+        <a href="{{url_for('conference', userid=userid)}}" class="btn btn-outline-success" > Add New Conference </a>
     </form>
   </nav>
   
-  <table class="table">
+  <table class="table table-hover">
     <thead>
       <tr>
         <th scope="col">Confid</th>
@@ -36,8 +36,12 @@
                 <td>{{conf.website}}</td>
                 {%if conf.confid_role == 0 %}
                     <td>
-                        <a href="/update/{{conf.confid}}" class="btn btn-outline-primary" > Update</a>
-                        <a href="#" class="btn btn-outline-danger" > Delete</a>
+                        <a href="{{url_for('user_update_conf', confid=conf.confid, userid=userid)}}" class="btn btn-outline-primary" > Update</a>
+                        {%if conf.status != 2 %}
+                          <a href="{{url_for('user_delete_conf', confid=conf.confid, userid=userid)}}" class="btn btn-outline-danger" > Delete</a>
+                        {%else%}  
+                          <a href="#" class="btn btn-outline-danger disabled" > Request's sent</a>
+                        {%endif%}
                     </td> 
                 {%endif%}
             </tr>

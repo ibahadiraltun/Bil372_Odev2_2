@@ -10,7 +10,7 @@ from sqlalchemy.sql.operators import nullsfirst_op
 app = Flask(__name__)
 
 #connection to database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ibahadiraltun:@localhost/bil372-hw2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
 db=SQLAlchemy(app)
 session =Session(db.engine)
 conn=db.engine.connect()
@@ -176,19 +176,18 @@ def main():
 @app.route('/conference/<userid>', methods=['POST', 'GET'])
 def conference(userid):   
    if request.method == 'POST':
-      #confid=request.form['confid']
       name=request.form['name']
       shortname=request.form['shortname']
       year=request.form['year']
-      yearToString=year.strftime("%Y")
       start_date=request.form['start_date']
       end_date=request.form['end_date']
       submission_deadline=request.form['submission_deadline']
       creator_user=userid
       website=request.form['website']
-      confid='the_' + shortname + '_' + year
+      confid='_' + shortname + '_' + year
       query=select([Conf]).where(Conf.c.confid == confid)
-      if query != '':
+      result= conn.execute(query).fetchone()
+      if result != None:
          karakter = "_"
          a = confid.rfind(karakter) + 2
          length = len(confid)
@@ -198,17 +197,17 @@ def conference(userid):
          else:
             confid = confid + "_2"  
       Creation_DateTime = datetime.utcnow()
-      new_conference= Conf.insert().values(confid=confid,name=name, shortname=shortname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,creator_user=creator_user,website=website,Creation_DateTime=Creation_DateTime,status=0)
+      new_conference= Conf.insert().values(confid=confid,name=name, shortname=shortname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,creator_user=creator_user,website=website,creation_datetime=Creation_DateTime,status=0)
       conn.execute(new_conference)
-      return redirect(url_for('main'))
-   else:
+      return redirect(url_for('user', id=userid))
+   else: 
       return render_template('conference.html', usersinfos = session.query(User).all() )  
 
 @app.route('/user/<int:id>')
 def user(id):
    query= select([Conf, ConfRole.c.confid_role]).where(and_(Conf.c.confid==ConfRole.c.confid,ConfRole.c.authenticationid == id) )
    conferences= conn.execute(query).fetchall() 
-   return  render_template('user.html', conferences=conferences, userid=id )
+   return  render_template('user.html', conferences=conferences, userid=id  )
 
 @app.route('/submissions/<int:userid>')
 def submissions(userid):
@@ -221,8 +220,8 @@ def newSubmission(userid):
       return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
    return render_template('newSubmission.html', userid=userid, users = get_valid_users(), confs=get_valid_confs())
 
-@app.route('/update/<confid>' , methods=['POST', 'GET'])
-def user_update(confid):
+@app.route('/update/<confid>/<int:userid>' , methods=['POST', 'GET'])
+def user_update_conf(confid,userid):
    if request.method =='POST':
       name=request.form['name']
       sname=request.form['shortname']
@@ -233,11 +232,17 @@ def user_update(confid):
       website=request.form['website']
       query= ConfUpdate.insert().values(confid=confid,name=name, shortname=sname,year=year,start_date=start_date,end_date=end_date,submission_deadline=submission_deadline,website=website)
       conn.execute(query)
-
+      return redirect(url_for('user', id=userid))
    else:
       query=select([Conf]).where(Conf.c.confid == confid)
       conference= conn.execute(query).fetchone()
       return render_template('updateConference.html', conf=conference)
+
+@app.route('/delete/<confid>/<int:userid>')
+def user_delete_conf(confid,userid):
+   query = update(Conf).where(Conf.c.confid == confid).values(status = 2)
+   conn.execute(query)
+   return redirect(url_for('user', id=userid))
 
 if __name__ == '__main__':
    app.run(debug = True)
