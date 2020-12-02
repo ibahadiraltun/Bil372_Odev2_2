@@ -168,9 +168,9 @@ def get_submissions_for_user(id):
    return res
 
 def update_mongodb(values):
-    mongo.db.submissions.insert(values)
+    mongo.db.submissions.insert_one(values)
 
-def add_submission_for_user(id, form):
+def add_submission_for_user(id, form,confid):
    # userid = request.form['userid']
    # confid = request.form['confid']
    # title = request.form['title']
@@ -179,7 +179,7 @@ def add_submission_for_user(id, form):
    # pdf_path = request.form['pdf_path']
    # authors = form['authors']
 
-   confid = form['confid']
+   #confid = form['confid']
    query = select([Submission]).where(
       and_(
          Submission.c.authenticationid == id,
@@ -194,7 +194,7 @@ def add_submission_for_user(id, form):
    
    values = {
       'authenticationid': form['userid'],
-      'confid': form['confid'],
+      'confid': confid,
       'prevsubmissionid': prevsubmissionid
    }
 
@@ -203,7 +203,7 @@ def add_submission_for_user(id, form):
    query_subid = select([Submission]).where(
       and_(
          Submission.c.authenticationid == id,
-         Submission.c.confid == form['confid'],
+         Submission.c.confid == confid,
          Submission.c.prevsubmissionid == prevsubmissionid
       )
    )
@@ -318,12 +318,20 @@ def user_changeInfo(id):
 def submissions(userid):
    return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
 
-@app.route('/newSubmissions/<int:userid>', methods=['POST', 'GET'])
-def newSubmission(userid):
+@app.route('/newSubmissions/<int:userid>/<confid>', methods=['POST', 'GET'])
+def newSubmission(userid,confid):
    if request.method == 'POST':
-      add_submission_for_user(id = userid, form = request.form)
+      add_submission_for_user(id = userid, form = request.form,confid=confid)
       return render_template('submissions.html', userid=userid, submissions=get_submissions_for_user(userid))
-   return render_template('newSubmission.html', userid=userid, users = get_valid_users(), confs=get_valid_confs())
+   query=select([ConfRole]).where(and_(ConfRole.c.confid == confid,ConfRole.c.authenticationid == userid, ConfRole.c.confid_role == 0))
+   result= conn.execute(query).fetchone()
+   if result != None: # it means this is chair
+      query=select([ConfRole,User.c.name,User.c.lname]).where(and_(ConfRole.c.confid == confid, User.c.authenticationid == ConfRole.c.authenticationid))
+      users= conn.execute(query).fetchall()
+   else: # it is not a chair
+      query=select([User]).where(User.c.authenticationid == userid)
+      users= conn.execute(query).fetchall() #only one user
+   return render_template('newSubmission.html', userid=userid, users = users)
 
 @app.route('/update/<confid>/<int:userid>' , methods=['POST', 'GET'])
 def user_update_conf(confid,userid):

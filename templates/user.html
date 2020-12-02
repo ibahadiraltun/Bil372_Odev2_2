@@ -46,6 +46,9 @@
                         {%endif%}
                     </td> 
                 {%endif%}
+                <td>
+                  <a href="{{url_for('newSubmission', userid=userid , confid= conf.confid)}}" class="btn btn-outline-success" > New Submission</a>
+                </td>
             </tr>
         {%endfor%}
     </tbody>

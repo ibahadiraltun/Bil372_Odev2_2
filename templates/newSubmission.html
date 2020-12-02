@@ -46,14 +46,14 @@ $( function() {
     <form action = "" method = "post" class="form-signin">
         <h2 class="text-center">New Submission</h2>
         <input type="hidden" name="userid" value="{{ userid }}">
-        <div class="form-group">       
+        <!--<div class="form-group">       
             <select class="form-control" name="confid"  required="required" >
                 <option disabled selected>Conference name</option>
                 {% for conf in confs %}
                     <option >{{ conf.confid }}</option> 
                 {% endfor %}        
             </select>
-        </div>
+        </div>-->
         <div class="form-group">       
             <select class="form-control" name="authors"  required="required" multiple>
                 <option disabled selected>Authors</option>
