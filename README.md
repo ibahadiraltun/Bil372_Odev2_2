@@ -1,9 +1,12 @@
 ## Bil372_Odev2_Grup2
 
 Paper admission system
+Users can log into the system by registering. Logged in users fill out a new conference form. Approved conferences can be viewed / edited by the user. Users can submit and view articles. Admin user can approve requests to create user, create/update/delete conferences.
 
 ## Team:
-
+ABDÜLKADİR ÖZPOLAT<br/>
+ŞÜKRAN GÜLER SAYGILI<br/>
+İBRAHİM BAHADIR ALTUN<br/>
 
 ## Setup:
 You should have a mongodb setup. Please refer [here](https://docs.mongodb.com/manual/tutorial/) for installation.
