@@ -6,9 +6,13 @@ Paper admission system
 
 
 ## Setup:
+You should have a mongodb setup. Please refer to [here](https://docs.mongodb.com/manual/tutorial/) for installion.
+<br />
 **Commands that is needed to run:**   
    > pip install flask flask-sqlalchemy  
    > pip install psychopg2
+   > pip install pymongo
+   > pip install Flask-PyMongo
    
    
  **to run:**    
