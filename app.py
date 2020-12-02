@@ -5,22 +5,22 @@ from sqlalchemy.orm import Session
 import psycopg2
 from datetime import datetime
 from sqlalchemy.sql.operators import nullsfirst_op
-#from flask_pymongo import PyMongo
-#from pymongo import MongoClient
+from flask_pymongo import PyMongo
+from pymongo import MongoClient
 
 from datetime import datetime
 
 
-#client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb://localhost:27017/')
 app = Flask(__name__)
 
 app.config['MONGO_DBNAME'] = 'local'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/local'
 
-#mongo = PyMongo(app)
+mongo = PyMongo(app)
 
 #connection to database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/odev2'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:test@localhost/HW2'
 db=SQLAlchemy(app)
 session =Session(db.engine)
 conn=db.engine.connect()
@@ -370,7 +370,7 @@ def user_delete_conf(confid,userid):
    conn.execute(query)
    return redirect(url_for('user', id=userid))
 
-@app.route('/authentication/<userid>')
+@app.route('/authentication/<userid>', methods=['POST', 'GET'])
 def user_giveAuthentication(userid):
    query=select([User]).where(User.c.primary_email != 'admin')
    usersinfos= conn.execute(query).fetchall()
